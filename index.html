@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🫶🏻</title>
+
+  <!-- Google fonts (replace or remove if desired) -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: #fff6fb;
+      --bg2: #f6f0ff;
+      --accent: #ff7eb6; /* soft pink */
+      --accent-2: #bda6ff; /* soft purple */
+      --text: #2b2b2b;
+      --muted: #6b6b6b;
+      --glass: rgba(255,255,255,0.6);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Poppins,system-ui,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--text);
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow:hidden; /* we'll manage scrolling per section */
+    }
+
+    /* app container */
+    .app{
+      height:100vh;
+      width:100vw;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      padding:24px;
+    }
+
+    /* pages stack */
+    .page{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px;
+      transition:opacity 800ms cubic-bezier(.2,.9,.2,1), transform 800ms cubic-bezier(.2,.9,.2,1);
+      opacity:0;
+      transform:translateY(20px) scale(.995);
+      pointer-events:none;
+    }
+    .page.active{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      pointer-events:auto;
+    }
+
+    .card{
+      width:100%;
+      max-width:920px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.85));
+      border-radius:20px;
+      box-shadow: 0 10px 30px rgba(30,20,50,0.08);
+      padding:48px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      align-items:center;
+      text-align:center;
+      backdrop-filter: blur(6px);
+    }
+
+    h1.title{
+      margin:0;
+      font-family:'Dancing Script', cursive;
+      font-size:48px;
+      line-height:1;
+      color:var(--accent);
+      letter-spacing:0.6px;
+    }
+
+    p.lead{
+      margin:0;
+      color:var(--muted);
+      font-size:18px;
+      max-width:780px;
+    }
+
+    .btn{
+      margin-top:18px;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:white;
+      border:none;
+      padding:12px 22px;
+      border-radius:12px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 6px 18px rgba(180,60,120,0.18);
+      transition:transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+    }
+    .btn:active{transform:translateY(1px)}
+
+    /* typewriter style */
+    .typewriter{font-family:inherit; font-size:20px; color:var(--muted); min-height:36px}
+
+    /* floating hearts / confetti background */
+    .hearts{
+      position:absolute; inset:0; pointer-events:none; overflow:hidden;
+    }
+
+    .hero-visual{width:220px; height:220px; border-radius:18px; background:linear-gradient(135deg,#fff,#fff0f7); display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 30px rgba(140,100,140,0.06)}
+    .hero-visual img{max-width:84%; max-height:84%; border-radius:12px}
+
+    /* page 2 (memories) */
+    .mem-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; width:100%}
+    .mem-card{
+      background:var(--glass);
+      padding:14px; border-radius:14px; min-height:120px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; text-align:left;
+      transform-origin:center; transition: transform 400ms cubic-bezier(.2,.9,.2,1), opacity 400ms ease;
+    }
+    .mem-card img{width:100%; border-radius:10px; object-fit:cover; max-height:120px}
+
+    /* reasons layout */
+    .reasons-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; width:100%}
+    .reason{
+      background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.82)); padding:12px; border-radius:12px; min-height:84px; display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; transition: transform 300ms ease, box-shadow 300ms ease;
+      box-shadow:0 6px 18px rgba(140,80,120,0.06);
+    }
+    .reason.revealed{transform:translateY(-6px) scale(1.02); box-shadow:0 18px 30px rgba(140,80,120,0.12)}
+
+    /* final letter page — minimal */
+    .letter-wrap{width:100%; max-width:760px; padding:36px; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75)); box-shadow:0 10px 40px rgba(50,20,40,0.06)}
+    .letter{font-size:13px; line-height:1.6; text-align:left; font-family:Poppins; color:var(--text); min-height:240px}
+
+    .small-muted{font-size:13px;color:var(--muted)}
+
+    /* responsive tweaks */
+    @media (max-width:720px){
+      h1.title{font-size:40px}
+      .card{padding:28px}
+      .hero-visual{width:160px;height:160px}
+    }
+
+    /* subtle entrance for children */
+    .stagger > *{opacity:0; transform:translateY(8px); transition:all 600ms cubic-bezier(.2,.9,.2,1)}
+    .stagger.visible > *{opacity:1; transform:translateY(0)}
+    .stagger.visible > *:nth-child(1){transition-delay:80ms}
+    .stagger.visible > *:nth-child(2){transition-delay:160ms}
+    .stagger.visible > *:nth-child(3){transition-delay:240ms}
+    .stagger.visible > *:nth-child(4){transition-delay:320ms}
+    .stagger.visible > *:nth-child(5){transition-delay:400ms}
+
+    /* small corner hint */
+    .corner-hint{position:fixed; right:18px; bottom:18px; background:rgba(255,255,255,0.9); padding:10px 12px; border-radius:999px; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+
+  </style>
+</head>
+<body>
+<audio id="bgMusic" src="sounds/music.mp3" autoplay loop></audio>
+<div class="app" id="app">
+  <div class="hearts" id="hearts"></div>
+
+  <!-- PAGE 1: Hero / Intro -->
+  <section id="page1" class="page active">
+    <div class="card">
+      <div class="hero-visual" aria-hidden="true">
+        <!-- Replace this image with her photo or an illustration -->
+        <img src="images/anjali.jpg" alt="Anjali" id="heroImg">
+      </div>
+      <h1 class="title">Happy Birthday, <span id="herName">Anjali!</span></h1>
+      <p class="typewriter" id="introWriter"></p>
+      <button class="btn" id="next1">Next →</button>
+    </div>
+  </section>
+
+  <!-- PAGE 2: Memories -->
+  <section id="page2" class="page">
+    <div class="card">
+      <h2 style="margin:0;font-family:'Dancing Script',cursive;color:var(--accent);">Our Story</h2>
+      <p class="lead">A few moments I keep close. click any card!</p>
+
+      <div class="mem-grid" id="memGrid">
+        <!-- Replace these with real images/texts -->
+        <div class="mem-card"> <strong>The day we met</strong><div class="small-muted">May 31 09:45 PM (2025)</div></div>
+        <div class="mem-card"> <strong>Our funniest memory</strong><div class="small-muted">ugh it might be the worst</div></div>
+        <div class="mem-card"> <strong>Late night talks</strong><div class="small-muted">remember the nights?</div></div>
+      </div>
+
+      <button class="btn" id="next2">Next →</button>
+    </div>
+  </section>
+
+  <!-- PAGE 3: Mini Game -->
+<section id="page3" class="page">
+  <div class="card">
+    <h2 style="margin:0;font-family:'Dancing Script',cursive;color:var(--accent);">
+      Mini Game
+    </h2>
+
+    <p class="lead">
+      Click the emoji as fast as you can!  
+      Catch 10 emojis to unlock the next page.
+    </p>
+
+    <div id="gameArea" style="
+      position:relative;
+      width:100%;
+      max-width:600px;
+      height:300px;
+      background:rgba(255,255,255,0.7);
+      border-radius:16px;
+      overflow:hidden;
+      margin-top:20px;
+    ">
+      <div id="countdown" style="
+        position:absolute;
+        inset:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:48px;
+        font-weight:600;
+        color:var(--accent);
+      ">
+        Click Start
+      </div>
+    </div>
+
+    <button class="btn" id="startGame" style="margin-top:20px;">
+      Start!
+    </button>
+
+    <button class="btn" id="next3" style="margin-top:10px; display:none;">
+      Next →
+    </button>
+  </div>
+</section>
+
+<!-- PAGE 4: Transition Lines -->
+<section id="pageTransition" class="page">
+  <div class="card">
+    <h2 id="transitionLine" style="
+      font-family:'Dancing Script',cursive;
+      font-size:36px;
+      color:var(--accent);
+      opacity:0;
+      transform:translateY(20px);
+      transition:all 800ms cubic-bezier(.2,.9,.2,1);
+    ">
+    </h2>
+  </div>
+</section>
+
+
+  <!-- PAGE 4: Final Letter (minimal) -->
+  <section id="page4" class="page">
+    <div class="letter-wrap">
+      <p class="small-muted" style="margin:0 0 10px 0;">A little letter... I wrote this for you!</p>
+      <div class="letter" id="letter"></div>
+    
+    </div>
+  </section>
+  
+  <!-- full-screen confetti canvas -->
+  <canvas id="confettiCanvas" style="position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:40"></canvas>
+
+</div>
+
+<script>
+  // ---------- Simple helpers ----------
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+  const pages = ['#page1','#page2','#page3','#pageTransition','#page4'].map(q=>$(q));
+  let current = 0;
+
+  function showPage(i){
+    pages.forEach((p,idx)=>{
+      if(idx===i) p.classList.add('active'); else p.classList.remove('active');
+    });
+    current = i;
+  }
+
+  async function playTransition(){
+  const el = document.getElementById('transitionLine');
+
+  const lines = [
+    "Alright... that's enough for now.",
+    "I have something a little more meaningful for you."
+  ];
+
+  for(let line of lines){
+    el.style.opacity = "0";
+    el.style.transform = "translateY(20px)";
+    el.textContent = line;
+
+    // small delay before fade in
+    await new Promise(r => setTimeout(r, 400));
+
+    // fade in
+    el.style.opacity = "1";
+    el.style.transform = "translateY(0)";
+
+    // stay visible
+    await new Promise(r => setTimeout(r, 2200));
+
+    // fade up & disappear
+    el.style.opacity = "0";
+    el.style.transform = "translateY(-20px)";
+
+    await new Promise(r => setTimeout(r, 800));
+  }
+}
+
+
+  // keyboard navigation: Enter or Space -> next
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.code === 'Space'){
+      e.preventDefault();
+      goNext();
+    }
+  });
+
+  function goNext(){
+    if(current < pages.length-1) showPage(current+1);
+  }
+
+  // ---------- Typewriter (async-friendly) ----------
+  async function typeText(el, text, opts={speed:40}){
+    el.textContent = '';
+    for(let i=0;i<text.length;i++){
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, opts.speed));
+    }
+  }
+
+  // slower, with small pauses for punctuation
+  function smartSpeed(ch){
+    if([',','-'].includes(ch)) return 60;
+    if(['.','!','?'].includes(ch)) return 200;
+    return 36;
+  }
+
+  async function smartType(el, text){
+    el.textContent = '';
+    for(let i=0;i<text.length;i++){
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, smartSpeed(text[i])));
+    }
+  }
+
+  // ---------- Initial intro writer ----------
+  const introWriter = $('#introWriter');
+  const introText = 'To the most important friend in my life. thank you for being.';
+  // start after tiny delay for smoothness
+  setTimeout(()=> smartType(introWriter, introText), 900);
+
+  // next buttons
+  $('#next1').addEventListener('click', ()=> showPage(1));
+  $('#next2').addEventListener('click', ()=> showPage(2));
+  $('#next3').addEventListener('click', async ()=>{
+  showPage(3); // show transition page
+  await playTransition();
+  showPage(4); // then show final letter
+});
+
+
+  // ---------- Memories interactivity ----------
+const memoryTexts = [
+  'That is the start. i texted you with "Yooo!" and you replied with "Hie!!"',
+  'Yeah i Don\'t know what "Birth Certificate" is',
+  'The night when we talked till 2 AM. still never bored of it.'
+];
+
+$$('#memGrid .mem-card').forEach((card, idx)=>{
+  card.addEventListener('click', ()=>{
+    
+    // prevent re-click reset
+    if(card.classList.contains('revealed')) return;
+
+    card.classList.add('revealed');
+
+    card.animate(
+      [
+        {transform:'scale(1)'},
+        {transform:'scale(1.06)'},
+        {transform:'scale(1)'}
+      ],
+      {duration:420,easing:'cubic-bezier(.2,.9,.2,1)'}
+    );
+
+    // set unique content for each card
+    card.innerHTML =
+      '<strong>Memory ' + (idx+1) + '</strong>' +
+      '<div class="small-muted">' + memoryTexts[idx] + '</div>';
+  });
+});
+
+
+
+  // ---------- MINI GAME ----------
+const gameArea = document.getElementById('gameArea');
+const countdownEl = document.getElementById('countdown');
+const startBtn = document.getElementById('startGame');
+const nextBtn = document.getElementById('next3');
+
+const emojis = ['🤪','✨','🎂','🌸','🧁','💫','🎀','🐸','💌','🍭'];
+
+let score = 0;
+let gameActive = false;
+let currentEmoji = null;
+let emojiTimeout = null;
+
+function randomPosition(size){
+  const maxX = gameArea.clientWidth - size;
+  const maxY = gameArea.clientHeight - size;
+  return {
+    x: Math.random() * maxX,
+    y: Math.random() * maxY
+  };
+}
+
+function spawnEmoji(){
+  if(!gameActive) return;
+
+  // Clear previous timeout
+  if(emojiTimeout){
+    clearTimeout(emojiTimeout);
+    emojiTimeout = null;
+  }
+
+  if(currentEmoji){
+    currentEmoji.remove();
+    currentEmoji = null;
+  }
+
+  const emoji = document.createElement('div');
+  emoji.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  emoji.style.position = 'absolute';
+  emoji.style.fontSize = '42px';
+  emoji.style.cursor = 'pointer';
+  emoji.style.userSelect = 'none';
+
+  const pos = randomPosition(50);
+  emoji.style.left = pos.x + 'px';
+  emoji.style.top = pos.y + 'px';
+
+  gameArea.appendChild(emoji);
+  currentEmoji = emoji;
+
+  emoji.addEventListener('click', () => {
+  if(!gameActive) return;
+
+  // Play pop sound
+  const popSound = new Audio('sounds/pop.mp3');
+  popSound.play().catch(e=>console.log(e)); // catch just in case
+
+  clearTimeout(emojiTimeout);
+  emojiTimeout = null;
+
+  score++;
+  emoji.remove();
+  currentEmoji = null;
+
+  if(score >= 10){
+    winGame();
+  } else {
+    setTimeout(() => {
+      spawnEmoji();
+    }, 300);
+  }
+});
+
+
+  // 🔥 Increased miss timer (2 seconds now)
+  emojiTimeout = setTimeout(()=>{
+    if(gameActive){
+      loseGame();
+    }
+  }, 2000); // was 1200
+}
+
+
+function startCountdown(){
+  let time = 5;
+  countdownEl.textContent = time;
+  const interval = setInterval(()=>{
+    time--;
+    if(time <= 0){
+      clearInterval(interval);
+      countdownEl.textContent = '';
+      startGame();
+    } else {
+      countdownEl.textContent = time;
+    }
+  },1000);
+}
+
+function startGame(){
+  score = 0;
+  gameActive = true;
+  spawnEmoji();
+}
+
+function winGame(){
+  gameActive = false;
+
+  if(currentEmoji){
+    currentEmoji.remove();
+    currentEmoji = null;
+  }
+
+  clearTimeout(emojiTimeout);
+  emojiTimeout = null;
+
+  countdownEl.textContent = "You Win!";
+
+  // Hide start button permanently
+  startBtn.style.display = "none";
+
+  // Show next button
+  nextBtn.style.display = "inline-block";
+}
+
+
+function loseGame(){
+  gameActive = false;
+  if(currentEmoji) currentEmoji.remove();
+  clearTimeout(emojiTimeout);
+  countdownEl.textContent = "Missed! Try Again?";
+  startBtn.disabled = false;
+}
+
+startBtn.addEventListener('click', ()=>{
+  startBtn.disabled = true;
+  nextBtn.style.display = "none";
+  countdownEl.textContent = "";
+  startCountdown();
+});
+
+
+  // ---------- Final letter (10 lines) ----------
+  const letterEl = $('#letter');
+  const tenLines = [
+    'too dramatic. but still maybe you like it?',
+    'So There\'s a thousand tiny things I love about you. this is just ten.',
+    'You have a way of turning my worst days into something softer.',
+    'Your laugh is a little miracle I never even listened it. but still, i feel it.',
+    'Even across miles, you feel close in all the right ways.',
+    'Thank you for every voice note, (only one btw) every meme, every midnight text.',
+    'I hope this year brings you the luck you deserve.',
+    'I will always be on your side. distance and time won\'t change that.',
+    'wish you the happiest birthday, Anjali. and a year ahead as wonderful as you are...'
+  ];
+
+  async function playLetter(){
+    letterEl.textContent = '';
+    for(let i=0;i<tenLines.length;i++){
+      const line = tenLines[i];
+      // create line element and type into it
+      const lineEl = document.createElement('div');
+      lineEl.style.opacity = '0';
+      lineEl.style.transform = 'translateY(6px)';
+      letterEl.appendChild(lineEl);
+      // animate in
+      requestAnimationFrame(()=>{ lineEl.style.transition = 'all 420ms cubic-bezier(.2,.9,.2,1)'; lineEl.style.opacity = '1'; lineEl.style.transform = 'translateY(0)'; });
+      // type the line
+      for(let ch of line){
+        lineEl.textContent += ch;
+        await new Promise(r => setTimeout(r, smartSpeed(ch)));
+      }
+      // small pause between lines
+      await new Promise(r => setTimeout(r, 380));
+    }
+    // after the last line, small celebration
+    launchConfetti();
+  }
+  // autoplay letter when arriving to page 4
+  // observe page class changes to know when page4 becomes active
+  const observer = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      if(m.attributeName === 'class'){
+        if($('#page4').classList.contains('active')){
+          // small delay for transition
+          setTimeout(()=>{
+  letterEl.innerHTML='';
+  // extra delay before first line starts
+  setTimeout(()=> {
+    playLetter();
+  }, 1200); // 1.2 sec delay before typing starts
+}, 620);
+
+        } else {
+          // stop confetti if leaving
+          stopConfetti();
+        }
+      }
+    });
+  });
+  observer.observe($('#page4'), {attributes:true});
+
+  // ---------- Confetti system (lightweight) ----------
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const ctx = confettiCanvas.getContext('2d');
+  let confettiPieces = [];
+  let confettiInterval = null;
+
+  function resizeCanvas(){
+    confettiCanvas.width = innerWidth * devicePixelRatio;
+    confettiCanvas.height = innerHeight * devicePixelRatio;
+    confettiCanvas.style.width = innerWidth + 'px';
+    confettiCanvas.style.height = innerHeight + 'px';
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function rand(min,max){ return Math.random()*(max-min)+min }
+
+  function createConfetti(n=60){
+    confettiPieces = [];
+    for(let i=0;i<n;i++){
+      confettiPieces.push({
+        x: rand(0, innerWidth),
+        y: rand(-innerHeight, 0),
+        w: rand(6, 12),
+        h: rand(8, 18),
+        vx: rand(-0.8,0.8),
+        vy: rand(2,5),
+        rot: rand(0,Math.PI*2),
+        vr: rand(-0.08,0.08),
+        color: `hsl(${Math.floor(rand(320,360))},90%,65%)`
+      });
+    }
+  }
+
+  function drawConfetti(){
+    ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+    for(let p of confettiPieces){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+  }
+
+  function updateConfetti(){
+    for(let p of confettiPieces){
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      
+      // wrap around for endless fall
+      if(p.y > innerHeight + 20){ 
+        p.y = -20; 
+        p.x = Math.random() * innerWidth;
+        p.vy = rand(2,5); // reset vertical speed
+        p.vx = rand(-0.8,0.8); // reset horizontal speed
+      }
+      if(p.x < -20) p.x = innerWidth + 20;
+      if(p.x > innerWidth + 20) p.x = -20;
+    }
+}
+
+
+
+  function launchConfetti(){
+    createConfetti(90);
+    if(confettiInterval) clearInterval(confettiInterval);
+    confettiInterval = setInterval(()=>{
+      updateConfetti();
+      drawConfetti();
+    }, 1000/60);
+    // stop after a while
+
+  }
+
+  // ---------- small floating hearts background (CSS + tiny JS) ----------
+  const heartsContainer = $('#hearts');
+  function spawnHeart(){
+    const el = document.createElement('div');
+    const size = Math.floor(rand(8,26));
+    el.style.position = 'absolute';
+    el.style.left = rand(6,94) + '%';
+    el.style.bottom = '-40px';
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.pointerEvents = 'none';
+    el.style.opacity = (rand(0.45, 0.9)).toString();
+    el.style.background = 'radial-gradient(circle at 30% 30%, white, '+ (rand(0,1)>.5? 'rgba(255,120,160,0.85)':'rgba(180,140,255,0.85)') +')';
+    el.style.borderRadius = '8px';
+    el.style.transform = 'rotate(45deg)';
+    el.style.boxShadow = '0 6px 18px rgba(120,60,120,0.06)';
+    heartsContainer.appendChild(el);
+
+    const dur = rand(6000,14000);
+    el.animate([
+      {transform:'translateY(0) rotate(45deg)', opacity:el.style.opacity},
+      {transform:'translateY(-120vh) rotate(90deg)', opacity:0}
+    ],{duration:dur, easing:'linear'}).onfinish = ()=> el.remove();
+  }
+  // spawn hearts slowly
+  setInterval(spawnHeart, 1200);
+
+  // ---------- small safety: ensure alignments on load ----------
+  window.addEventListener('load', ()=>{
+    // small entrance animation for page1 children
+    document.querySelector('#page1 .card').classList.add('visible');
+  });
+
+  // initial focusable control
+  $('#next1').focus();
+
+  // helper: expose functions for debugging in dev console
+  window._GV = {showPage, launchConfetti, playLetter};
+
+// ---------- Background music play on first interaction ----------
+const bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = 0.4; // halki bajaye
+
+function tryPlayMusic(){
+  bgMusic.play().catch(e=>console.log('Autoplay blocked, waiting for interaction'));
+  // remove listeners after first attempt
+  window.removeEventListener('keydown', tryPlayMusic);
+  window.removeEventListener('click', tryPlayMusic);
+}
+
+// Listen for first user interaction
+window.addEventListener('keydown', tryPlayMusic);
+window.addEventListener('click', tryPlayMusic);
+
+</script>
+</body>
+</html>
